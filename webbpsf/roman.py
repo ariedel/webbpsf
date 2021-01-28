@@ -240,6 +240,41 @@ class RomanInstrument(webbpsf_core.SpaceTelescopeInstrument):
         self.options['jitter'] = 'gaussian'
         self.options['jitter_sigma'] = 0.014   # See https://roman.ipac.caltech.edu/sims/Param_db.html#telescope
 
+    def calc_psf(self, outfile=None, source=None, nlambda=None, monochromatic=None,
+                 fov_arcsec=None, fov_pixels=None, oversample=None, detector_oversample=None, fft_oversample=None,
+                 overwrite=True, display=False, save_intermediates=False, return_intermediates=False,
+                 normalize='first', add_distortion=True, crop_psf=True):
+        """
+        Compute a PSF.
+
+        This method exists so that Roman has the same calling sequence as JWST, despite
+        the fact that distortion and PSF cropping are current unsupported.
+
+        Parameters
+        ----------
+        add_distortion : bool
+            If True, will add 2 new extensions to the PSF HDUlist object. The 2nd extension
+            will be a distorted version of the over-sampled PSF and the 3rd extension will
+            be a distorted version of the detector-sampled PSF.
+        crop_psf : bool
+            If True, when the PSF is rotated to match the detector's rotation in the focal
+            plane, the PSF will be cropped so the shape of the distorted PSF will match it's
+            undistorted counterpart. This will only be used for NIRCam, NIRISS, and FGS PSFs.
+
+        """
+
+        # Run poppy calc_psf
+        psf = SpaceTelescopeInstrument.calc_psf(self, outfile=outfile, source=source, nlambda=nlambda,
+                                                monochromatic=monochromatic, fov_arcsec=fov_arcsec,
+                                                fov_pixels=fov_pixels, oversample=oversample,
+                                                detector_oversample=detector_oversample, fft_oversample=fft_oversample,
+                                                overwrite=overwrite, display=display,
+                                                save_intermediates=save_intermediates,
+                                                return_intermediates=return_intermediates, normalize=normalize)
+
+        return psf
+
+
     # slightly different versions of the following two functions
     # from the parent superclass
     # in order to interface with the FieldDependentAberration class
